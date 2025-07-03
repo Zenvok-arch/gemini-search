@@ -9,6 +9,11 @@ searchInput.addEventListener('keypress', function(e) {
     }
 });
 
+searchInput.addEventListener('focus', function() {
+    // Scroll the search input into view when focused, especially for mobile keyboards
+    searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+
 function performSearch() {
     const query = searchInput.value.trim();
     if (query === '') return;
