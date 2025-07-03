@@ -6,21 +6,6 @@ canvas.height = window.innerHeight;
 
 let particlesArray;
 
-// get mouse position
-let mouse = {
-    x: null,
-    y: null,
-    radius: (canvas.height/120) * (canvas.width/120)
-}
-
-window.addEventListener('mousemove', 
-    function(event) {
-        mouse.x = event.x;
-        mouse.y = event.y;
-    }
-);
-
-// create particle
 class Particle {
     constructor(x, y, directionX, directionY, size, color) {
         this.x = x;
@@ -29,6 +14,8 @@ class Particle {
         this.directionY = directionY;
         this.size = size;
         this.color = color;
+        this.baseDirectionX = directionX; // Store original direction
+        this.baseDirectionY = directionY; // Store original direction
     }
     // method to draw individual particle
     draw() {
@@ -40,7 +27,7 @@ class Particle {
         ctx.fill();
         ctx.shadowBlur = 0; // Reset shadow blur for other drawings
     }
-    // check particle position, check mouse position, move the particle, draw the particle
+    // check particle position, move the particle, draw the particle
     update() {
         //check if particle is still within canvas
         if (this.x > canvas.width || this.x < 0) {
@@ -50,24 +37,6 @@ class Particle {
             this.directionY = -this.directionY;
         }
 
-        //check collision detection - mouse position / particle position
-        let dx = mouse.x - this.x;
-        let dy = mouse.y - this.y;
-        let distance = Math.sqrt(dx*dx + dy*dy);
-        if (distance < mouse.radius + this.size){
-            if (mouse.x < this.x && this.x < canvas.width - this.size * 10) {
-                this.x += 10;
-            }
-            if (mouse.x > this.x && this.x > this.size * 10) {
-                this.x -= 10;
-            }
-            if (mouse.y < this.y && this.y < canvas.height - this.size * 10) {
-                this.y += 10;
-            }
-            if (mouse.y > this.y && this.y > this.size * 10) {
-                this.y -= 10;
-            }
-        }
         // move particle
         this.x += this.directionX;
         this.y += this.directionY;
@@ -131,18 +100,30 @@ window.addEventListener('resize',
     function(){
         canvas.width = innerWidth;
         canvas.height = innerHeight;
-        mouse.radius = ((canvas.height/80) * (canvas.height/80));
         init();
     }
 );
 
-// mouse out event
-window.addEventListener('mouseout', 
-    function(){
-        mouse.x = undefined;
-        mouse.y = undefined;
-    }
-)
+// Click event for particle detachment
+canvas.addEventListener('click', function(event) {
+    const clickX = event.clientX;
+    const clickY = event.clientY;
+
+    particlesArray.forEach(particle => {
+        const distance = Math.sqrt(Math.pow(clickX - particle.x, 2) + Math.pow(clickY - particle.y, 2));
+        if (distance < particle.size * 10) { // If click is within 10 times particle size
+            // Detach particle with a strong, random outward force
+            particle.directionX = (Math.random() - 0.5) * 20; 
+            particle.directionY = (Math.random() - 0.5) * 20;
+
+            // After a short delay, return to normal movement
+            setTimeout(() => {
+                particle.directionX = particle.baseDirectionX;
+                particle.directionY = particle.baseDirectionY;
+            }, 500); // 500ms detachment time
+        }
+    });
+});
 
 init();
 animate();
