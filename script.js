@@ -9,9 +9,13 @@ searchInput.addEventListener('keypress', function(e) {
     }
 });
 
+const searchContainer = document.querySelector('.search-container');
+
 searchInput.addEventListener('focus', function() {
-    // Scroll the search input into view when focused, especially for mobile keyboards
-    searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Add a small delay to allow the virtual keyboard to appear
+    setTimeout(() => {
+        searchContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
 });
 
 function performSearch() {
